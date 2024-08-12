@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Editor, { DiffEditor, useMonaco, loader, OnChange } from '@monaco-editor/react';
+import { get_agg_info, get_label_info, save_label } from './api';
 
 function App() {
   const [html, setHtml] = useState('')
@@ -21,7 +22,11 @@ function App() {
 
   return (
     <>
+      <div className="flex justify-between">
+
       <h1 className='m-5 text-3xl font-bold'>HTML Label Inspection</h1>
+      <h1 className="m-5 text-3xl font-bold">총 {}개 검수 완료</h1>
+      </div>
 
       {/* label id로 html 라벨 찾기 */}
       <div className='flex justify-center my-3'>
