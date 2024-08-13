@@ -187,7 +187,14 @@ function App() {
       <hr className='border-gray-500'/>
 
       <div className="m-5 flex justify-center">
-          <button className="my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700">저장</button>
+          <button className="my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700"
+            onClick={() => {
+              saveLabel(labelId, html, structCorrect, charCorrect,
+                        thUsed, valueEmptyCell, supsub, 
+                        cellSubtitle, semanticMergedCell, partialLined
+                        )
+            }}
+          >저장</button>
           </div>
     </>
   )
