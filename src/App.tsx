@@ -23,6 +23,35 @@ function App() {
     else setHtml('')
   }
 
+  const fillLabelInfo = async (labelId: number) => {
+    const response = await getLabelInfo(labelId)
+
+    if (response.inspected) { // 검수한 경우 해당 레이블 정보 제공
+        setHtml(response.html)
+        setImageName(response.imageName)
+
+        if (originImgRef.current) {
+          originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
+        }
+
+        setStruectCorrect(response.structCorrect)
+        setCharCorrect(response.charCorrect)
+        setThUsed(response.thUsed)
+        setValueEmptyCell(response.valueEmptyCell)
+        setSupsub(response.supsub)
+        setCellSubtile(response.cellSubtitle)
+        setSemanticMergedCell(response.semanticMergedCell)
+        setPartialLined(response.partialLined)
+
+    } else { // 검수 안 한 경우 레이블 html 제공
+        setHtml(response.html)
+        setImageName(response.imageName)
+
+        if (originImgRef.current) {
+          originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
+        }
+    }
+  }
 
   return (
     <>
@@ -35,47 +64,31 @@ function App() {
       {/* label id로 html 라벨 찾기 */}
       <div className='flex justify-center my-3'>
 
-      <input type="text" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-black" 
-      onChange={(event) => setLabelId(parseInt(event.target.value))}/>
+      <input type="number" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-black" 
+      value={labelId}
+      onChange={(event) => {
+          setLabelId(parseInt(event.target.value))
+        }}/>
       
-      <button onClick={async () => {
-        const response = await getLabelInfo(labelId)
-
-        if (response.inspected) { // 검수한 경우 해당 레이블 정보 제공
-            setHtml(response.html)
-            setImageName(response.imageName)
-
-            if (originImgRef.current) {
-              originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
-            }
-
-            setStruectCorrect(response.structCorrect)
-            setCharCorrect(response.charCorrect)
-            setThUsed(response.thUsed)
-            setValueEmptyCell(response.valueEmptyCell)
-            setSupsub(response.supsub)
-            setCellSubtile(response.cellSubtitle)
-            setSemanticMergedCell(response.semanticMergedCell)
-            setPartialLined(response.partialLined)
-
-        } else { // 검수 안 한 경우 레이블 html 제공
-            setHtml(response.html)
-            setImageName(response.imageName)
-
-            if (originImgRef.current) {
-              originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
-            }
-        }
-
-      }} className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
+      <button onClick={() => fillLabelInfo(labelId)} className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
       </div>
 
       {/* 다음, 이전 라벨 보기 */}
       <div className="flex justify-center mb-5">
 
-        <button className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
-        <input type="text" placeholder='파일 이름' className="p-2 mx-2 border-2 rounded-md" disabled />
-        <button className='p-2 border-2 rounded-md hover:bg-green-700'>다음</button>
+        <button onClick={async () => {
+          if (labelId-1 >= 0){
+            await fillLabelInfo(labelId-1)
+            setLabelId(labelId-1)
+          }
+        }} className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
+        <input type="text" placeholder='파일 이름' className="p-2 mx-2 border-2 rounded-md" value={imageName}  disabled />
+        <button onClick={ async () => {
+          if (labelId+1 < 1200){
+            await fillLabelInfo(labelId+1)
+            setLabelId(labelId+1)
+          }
+        }} className='p-2 border-2 rounded-md hover:bg-green-700'>다음</button>
  
       </div>
 
