@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react'
-import Editor, { DiffEditor, useMonaco, loader, OnChange } from '@monaco-editor/react';
+import {  useState, useRef } from 'react'
+import Editor, {  OnChange } from '@monaco-editor/react';
 import { getLabelInfo, saveLabel } from './api';
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
   const [semanticMergedCell, setSemanticMergedCell] = useState(0)  
   const [partialLined, setPartialLined] = useState(0)
 
-  const handleEditorChange: OnChange = (value, event) => {
+  const handleEditorChange: OnChange = (value) => {
     if (value) setHtml(value)
     else setHtml('')
   }
@@ -64,7 +64,7 @@ function App() {
       {/* label id로 html 라벨 찾기 */}
       <div className='flex justify-center my-3'>
 
-      <input type="number" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-black" 
+      <input type="number" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-white bg-black"
       value={labelId}
       onChange={(event) => {
           setLabelId(parseInt(event.target.value))
