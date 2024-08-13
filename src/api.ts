@@ -1,11 +1,22 @@
-export const get_agg_info = () => {
+import axios from 'axios'
 
-}
-
-export const get_label_info = () => {
+export const saveLabel = () => {
     
 }
 
-export const save_label = () => {
-    
+export const getLabelInfo = async (labelId: number) => {
+    try {
+
+        const res = await axios.get(`http://127.0.0.1:8000/label_info/${labelId}`);
+        return res.data
+        
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+   
+}
+
+export const getAggInfo = () => {
+
 }

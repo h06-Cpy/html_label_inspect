@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Editor, { DiffEditor, useMonaco, loader, OnChange } from '@monaco-editor/react';
-import { get_agg_info, get_label_info, save_label } from './api';
+import { getLabelInfo, saveLabel } from './api';
 
 function App() {
+  const [labelId, setLabelId] = useState(0)
+  const [imageName, setImageName] = useState('')
+  const originImgRef = useRef<HTMLImageElement>(null);
+  
   const [html, setHtml] = useState('')
 
   const [structCorrect, setStruectCorrect] = useState(false)
@@ -31,9 +35,39 @@ function App() {
       {/* label id로 html 라벨 찾기 */}
       <div className='flex justify-center my-3'>
 
-      <input type="text" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-black" />
+      <input type="text" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-black" 
+      onChange={(event) => setLabelId(parseInt(event.target.value))}/>
       
-      <button className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
+      <button onClick={async () => {
+        const response = await getLabelInfo(labelId)
+
+        if (response.inspected) { // 검수한 경우 해당 레이블 정보 제공
+            setHtml(response.html)
+            setImageName(response.imageName)
+
+            if (originImgRef.current) {
+              originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
+            }
+
+            setStruectCorrect(response.structCorrect)
+            setCharCorrect(response.charCorrect)
+            setThUsed(response.thUsed)
+            setValueEmptyCell(response.valueEmptyCell)
+            setSupsub(response.supsub)
+            setCellSubtile(response.cellSubtitle)
+            setSemanticMergedCell(response.semanticMergedCell)
+            setPartialLined(response.partialLined)
+
+        } else { // 검수 안 한 경우 레이블 html 제공
+            setHtml(response.html)
+            setImageName(response.imageName)
+
+            if (originImgRef.current) {
+              originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
+            }
+        }
+
+      }} className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
       </div>
 
       {/* 다음, 이전 라벨 보기 */}
@@ -59,6 +93,7 @@ function App() {
         height={'85vh'}
         theme='vs-dark'
         language='html'
+        value={html}
         onChange={handleEditorChange} />
 
         </div>
@@ -66,7 +101,7 @@ function App() {
 
         <div className="w-1/2 mx-1 py-5 grid grid-rows-2 gap-5">
           {/* 원본 이미지 */}
-          <img src="" alt="원본 이미지" />
+          <img ref={originImgRef} src="" alt="원본 이미지" />
           {/* 렌더링된 html 테이블 */}
           <div dangerouslySetInnerHTML={{__html: html}} className='font-medium'/>
         </div>
