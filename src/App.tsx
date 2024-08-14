@@ -17,6 +17,7 @@ function App() {
   const [cellSubtitle, setCellSubtile] = useState(0)
   const [semanticMergedCell, setSemanticMergedCell] = useState(0)  
   const [partialLined, setPartialLined] = useState(0)
+  const [topleftHeader, setTopleftHeader] = useState(0)
 
   const handleEditorChange: OnChange = (value) => {
     if (value) setHtml(value)
@@ -42,6 +43,7 @@ function App() {
         setCellSubtile(response.cellSubtitle)
         setSemanticMergedCell(response.semanticMergedCell)
         setPartialLined(response.partialLined)
+        setTopleftHeader(response.topleftHeader)
 
     } else { // 검수 안 한 경우 레이블 html 제공
         setHtml(response.html)
@@ -99,8 +101,6 @@ function App() {
 
         {/* 에디터 */}
         <div className=' w-1/2 mx-1 border-r-2'>
-          
-        
         <Editor
         // width={'85vh'}
         height={'85vh'}
@@ -108,35 +108,34 @@ function App() {
         language='html'
         value={html}
         onChange={handleEditorChange} />
-
         </div>
         
-
-        <div className="w-1/2 mx-1 py-5 grid grid-rows-2 gap-5">
+        <div className="w-1/2 mx-1 py-5 grid grid-rows-2">
           {/* 원본 이미지 */}
           <img ref={originImgRef} src="" alt="원본 이미지" />
           {/* 렌더링된 html 테이블 */}
           <div dangerouslySetInnerHTML={{__html: html}} className='font-medium'/>
         </div>
+
       </div>
 
-      {/* 체크힐 사항들 */}
-      <h1 className='m-5 font-bold text-3xl'>Check</h1>
-      <div className="grid grid-cols-2">
-      
+      {/* 체크할 사항들 */}
+      <h1 className='m-5 font-bold text-3xl'>Check (GPT가 생성한 답변 기준!)</h1>
+      <div className="grid grid-cols-3">
+     
       <div className='mb-2'>
         <h2 className="mx-5 mb-3 font-bold text-xl">구조 다 맞나요?</h2>
         <div className="mx-5 mb-5">
-        <button onClick={() => setStruectCorrect(true)} className={`mr-5 p-2 border-2 rounded-md ${structCorrect===true ? 'bg-green-700': ''}`}>네</button>
-        <button onClick={() => setStruectCorrect(false)} className={`mr-5 p-2 border-2 rounded-md ${structCorrect===false ? 'bg-green-700': ''}`}>아니오</button>
+        <button onClick={() => setStruectCorrect(true)} className={`m-2 p-2 border-2 rounded-md ${structCorrect===true ? 'bg-green-700': ''}`}>네</button>
+        <button onClick={() => setStruectCorrect(false)} className={`m-2 p-2 border-2 rounded-md ${structCorrect===false ? 'bg-green-700': ''}`}>아니오</button>
         </div>      
       </div>
 
         <div className='mb-2'>
           <h2 className="mx-5 mb-3 font-bold text-xl">글자 다 맞나요?</h2>
           <div className="mx-5 mb-5">
-          <button onClick={() => setCharCorrect(true)} className={`mr-5 p-2 border-2 rounded-md ${charCorrect===true ? 'bg-green-700': ''}`}>네</button>
-          <button onClick={() => setCharCorrect(false)} className={`mr-5 p-2 border-2 rounded-md ${charCorrect===false ? 'bg-green-700': ''}`}>아니오</button>
+          <button onClick={() => setCharCorrect(true)} className={`m-2 p-2 border-2 rounded-md ${charCorrect===true ? 'bg-green-700': ''}`}>네</button>
+          <button onClick={() => setCharCorrect(false)} className={`m-2 p-2 border-2 rounded-md ${charCorrect===false ? 'bg-green-700': ''}`}>아니오</button>
           </div>   
         </div>
 
@@ -144,54 +143,63 @@ function App() {
         <div className='mb-2'>
           <h2 className="mx-5 mb-3 font-bold text-xl">테이블 헤더(th) 구분 여부</h2>
           <div className="mx-5 mb-5">
-          <button onClick={() => setThUsed(true)} className={`mr-5 p-2 border-2 rounded-md ${thUsed===true ? 'bg-green-700': ''}`}>th 사용</button>
-          <button onClick={() => setThUsed(false)} className={`mr-5 p-2 border-2 rounded-md ${thUsed===false ? 'bg-green-700': ''}`}>th 사용 안함</button>
+          <button onClick={() => setThUsed(true)} className={`m-2 p-2 border-2 rounded-md ${thUsed===true ? 'bg-green-700': ''}`}>th 사용</button>
+          <button onClick={() => setThUsed(false)} className={`m-2 p-2 border-2 rounded-md ${thUsed===false ? 'bg-green-700': ''}`}>th 사용 안함</button>
           </div>
         </div>
 
         <div className='mb-2'>
           <h2 className="mx-5 mb-3 font-bold text-xl">값이 빈 셀 있나요?(좌상단 헤더 제외)</h2>
           <div className="mx-5 mb-5">
-          <button onClick={() => setValueEmptyCell(true)} className={`mr-5 p-2 border-2 rounded-md ${valueEmptyCell===true ? 'bg-green-700': ''}`}>네</button>
-          <button onClick={() => setValueEmptyCell(false)} className={`mr-5 p-2 border-2 rounded-md ${valueEmptyCell===false ? 'bg-green-700': ''}`}>아니오</button>
+          <button onClick={() => setValueEmptyCell(true)} className={`m-2 p-2 border-2 rounded-md ${valueEmptyCell===true ? 'bg-green-700': ''}`}>네</button>
+          <button onClick={() => setValueEmptyCell(false)} className={`m-2 p-2 border-2 rounded-md ${valueEmptyCell===false ? 'bg-green-700': ''}`}>아니오</button>
           </div>
         </div>
 
         <div className='mb-2'>
           <h2 className="mx-5 mb-3 font-bold text-xl">첨자 표현</h2>
           <div className="mx-5 mb-5">
-          <button onClick={() => setSupsub(0)} className={`mr-5 p-2 border-2 rounded-md ${supsub==0 ? 'bg-green-700': ''}`}>해당 없음</button>
-          <button onClick={() => setSupsub(1)} className={`mr-5 p-2 border-2 rounded-md ${supsub==1 ? 'bg-green-700': ''}`}>유니코드</button>
-          <button onClick={() => setSupsub(2)} className={`mr-5 p-2 border-2 rounded-md ${supsub==2 ? 'bg-green-700': ''}`}>Latex</button>
-          <button onClick={() => setSupsub(3)} className={`mr-5 p-2 border-2 rounded-md ${supsub==3 ? 'bg-green-700': ''}`}>{'<sup> <sub>태그'}</button>
+          <button onClick={() => setSupsub(0)} className={`m-2 p-2 border-2 rounded-md ${supsub==0 ? 'bg-green-700': ''}`}>해당 없음</button>
+          <button onClick={() => setSupsub(1)} className={`m-2 p-2 border-2 rounded-md ${supsub==1 ? 'bg-green-700': ''}`}>유니코드</button>
+          <button onClick={() => setSupsub(2)} className={`m-2 p-2 border-2 rounded-md ${supsub==2 ? 'bg-green-700': ''}`}>Latex</button>
+          <button onClick={() => setSupsub(3)} className={`m-2 p-2 border-2 rounded-md ${supsub==3 ? 'bg-green-700': ''}`}>{'<sup> <sub>태그'}</button>
           </div>
         </div>
 
         <div className='mb-2'>
           <h2 className="mx-5 mb-3 font-bold text-xl">셀 안에 소제목</h2>
           <div className="mx-5 mb-5">
-          <button onClick={() => setCellSubtile(0)} className={`mr-5 p-2 border-2 rounded-md ${cellSubtitle===0 ? 'bg-green-700': ''}`}>해당 없음</button>
-          <button onClick={() => setCellSubtile(1)} className={`mr-5 p-2 border-2 rounded-md ${cellSubtitle===1 ? 'bg-green-700': ''}`}>소제목도 하나의 셀 안에 있음</button>
-          <button onClick={() => setCellSubtile(2)} className={`mr-5 p-2 border-2 rounded-md ${cellSubtitle===2 ? 'bg-green-700': ''}`}>소제목 셀 나눠버림</button>
+          <button onClick={() => setCellSubtile(0)} className={`m-2 p-2 border-2 rounded-md ${cellSubtitle===0 ? 'bg-green-700': ''}`}>해당 없음</button>
+          <button onClick={() => setCellSubtile(1)} className={`m-2 p-2 border-2 rounded-md ${cellSubtitle===1 ? 'bg-green-700': ''}`}>소제목도 하나의 셀 안에 있음</button>
+          <button onClick={() => setCellSubtile(2)} className={`m-2 p-2 border-2 rounded-md ${cellSubtitle===2 ? 'bg-green-700': ''}`}>소제목 셀 나눠버림</button>
           </div>
         </div>
 
         <div className='mb-2'>
           <h2 className="mx-5 mb-3 font-bold text-xl">의미 상 병합 셀</h2>
           <div className="mx-5 mb-5">
-          <button onClick={() => setSemanticMergedCell(0)} className={`mr-5 p-2 border-2 rounded-md ${semanticMergedCell===0 ? 'bg-green-700': ''}`}>해당 없음</button>
-          <button onClick={() => setSemanticMergedCell(1)} className={`mr-5 p-2 border-2 rounded-md ${semanticMergedCell===1 ? 'bg-green-700': ''}`}>보이는 그대로 빈 칸으로 표현</button>
-          <button onClick={() => setSemanticMergedCell(2)} className={`mr-5 p-2 border-2 rounded-md ${semanticMergedCell===2 ? 'bg-green-700': ''}`}>값을 중복되게 채워서 표현</button>
-          <button onClick={() => setSemanticMergedCell(3)} className={`mr-5 p-2 border-2 rounded-md ${semanticMergedCell===3 ? 'bg-green-700': ''}`}>병합 셀로 표현</button>
+          <button onClick={() => setSemanticMergedCell(0)} className={`m-2 p-2 border-2 rounded-md ${semanticMergedCell===0 ? 'bg-green-700': ''}`}>해당 없음</button>
+          <button onClick={() => setSemanticMergedCell(1)} className={`m-2 p-2 border-2 rounded-md ${semanticMergedCell===1 ? 'bg-green-700': ''}`}>보이는 그대로 빈 칸으로 표현</button>
+          <button onClick={() => setSemanticMergedCell(2)} className={`m-2 p-2 border-2 rounded-md ${semanticMergedCell===2 ? 'bg-green-700': ''}`}>값을 중복되게 채워서 표현</button>
+          <button onClick={() => setSemanticMergedCell(3)} className={`m-2 p-2 border-2 rounded-md ${semanticMergedCell===3 ? 'bg-green-700': ''}`}>병합 셀로 표현</button>
           </div>
         </div>
 
         <div className='mb-2'>
           <h2 className="mx-5 mb-3 font-bold text-xl">partial lined</h2>
           <div className="mx-5 mb-5">
-          <button onClick={() => setPartialLined(0)} className={`mr-5 p-2 border-2 rounded-md ${partialLined===0 ? 'bg-green-700': ''}`}>해당 없음</button>
-          <button onClick={() => setPartialLined(1)} className={`mr-5 p-2 border-2 rounded-md ${partialLined===1 ? 'bg-green-700': ''}`}>모두 하나의 셀 안에 있음</button>
-          <button onClick={() => setPartialLined(2)} className={`mr-5 p-2 border-2 rounded-md ${partialLined===2 ? 'bg-green-700': ''}`}>셀 나눠버림</button>
+          <button onClick={() => setPartialLined(0)} className={`m-2 p-2 border-2 rounded-md ${partialLined===0 ? 'bg-green-700': ''}`}>해당 없음</button>
+          <button onClick={() => setPartialLined(1)} className={`m-2 p-2 border-2 rounded-md ${partialLined===1 ? 'bg-green-700': ''}`}>모두 하나의 셀 안에 있음</button>
+          <button onClick={() => setPartialLined(2)} className={`m-2 p-2 border-2 rounded-md ${partialLined===2 ? 'bg-green-700': ''}`}>셀 나눠버림</button>
+          </div>
+        </div>
+
+        <div className='mb-2'>
+          <h2 className="mx-5 mb-3 font-bold text-xl">좌상단 헤더 병합</h2>
+          <div className="mx-5 mb-5">
+          <button onClick={() => setTopleftHeader(0)} className={`m-2 p-2 border-2 rounded-md ${topleftHeader===0 ? 'bg-green-700': ''}`}>해당 없음</button>
+          <button onClick={() => setTopleftHeader(1)} className={`m-2 p-2 border-2 rounded-md ${topleftHeader===1 ? 'bg-green-700': ''}`}>병합된 셀로 표현</button>
+          <button onClick={() => setTopleftHeader(2)} className={`m-2 p-2 border-2 rounded-md ${topleftHeader===2 ? 'bg-green-700': ''}`}>나눠서 표현</button>
           </div>
         </div>
       
@@ -204,7 +212,7 @@ function App() {
             onClick={() => {
               saveLabel(labelId, html, structCorrect, charCorrect,
                         thUsed, valueEmptyCell, supsub, 
-                        cellSubtitle, semanticMergedCell, partialLined
+                        cellSubtitle, semanticMergedCell, partialLined, topleftHeader
                         )
             }}
           >저장</button>

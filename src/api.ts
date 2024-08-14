@@ -10,7 +10,8 @@ export const saveLabel = (
     supsub: number, 
     cellSubtitle: number, 
     semanticMergedCell: number, 
-    partialLined: number
+    partialLined: number,
+    topleftHeader: number
   ) => {
     
     const reqBody = {
@@ -24,19 +25,24 @@ export const saveLabel = (
         cell_subtitle: cellSubtitle,
         semantic_merged_cell: semanticMergedCell,
         partial_lined: partialLined,
+        topleft_header: topleftHeader
       }
     console.log(reqBody)
 
-    // 개발 전용 url
+    // 개발용 url
     // axios.post('http://127.0.0.1:8000/save_label', reqBody);
+
+    // 배포용 url
     axios.post('/save_label', reqBody);
   };
 
 export const getLabelInfo = async (labelId: number) => {
     try {
 
-        // 개발 전용 url
+        // 개발용 url
         // const res = await axios.get(`http://127.0.0.1:8000/label_info/${labelId}`);
+
+        // 배포용 url
         const res = await axios.get(`/label_info/${labelId}`);
         return res.data
 
