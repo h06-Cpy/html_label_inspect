@@ -1,4 +1,4 @@
-import {  useState, useRef } from 'react'
+import React, {  useState, useRef } from 'react'
 import Editor, {  OnChange } from '@monaco-editor/react';
 import { getLabelInfo, saveLabel } from './api';
 import { BoolTypeQuestion } from './components/BoolTypeQuestion';
@@ -15,11 +15,13 @@ function App() {
   const [charCorrect, setCharCorrect] = useState(false)
   const [thUsed, setThUsed] = useState(true)
   const [valueEmptyCell, setValueEmptyCell] = useState(false)
-  const [specialChar, setSpecialChar] = useState<Set<number>>(new Set([]))
-  const [cellSubtitle, setCellSubtile] = useState<Set<number>>(new Set([]))
-  const [semanticMergedCell, setSemanticMergedCell] = useState<Set<number>>(new Set([]))  
-  const [partialLined, setPartialLined] = useState<Set<number>>(new Set([]))
-  const [topleftHeader, setTopleftHeader] = useState<Set<number>>(new Set([]))
+  const [specialChar, setSpecialChar] = useState<Set<number>>(new Set([0]))
+  const [cellSubtitle, setCellSubtile] = useState<Set<number>>(new Set([0]))
+  const [semanticMergedCell, setSemanticMergedCell] = useState<Set<number>>(new Set([0]))  
+  const [partialLined, setPartialLined] = useState<Set<number>>(new Set([0]))
+  const [topleftHeader, setTopleftHeader] = useState<Set<number>>(new Set([0]))
+
+  const [isInspected, setIsInspected] = useState(false)
 
   const handleEditorChange: OnChange = (value) => {
     if (value) setHtml(value)
@@ -30,7 +32,8 @@ function App() {
     const response = await getLabelInfo(labelId)
 
     if (response.inspected) { // 검수한 경우 해당 레이블 정보 제공
-      console.log(response)
+        setIsInspected(true)
+
         setHtml(response.html)
         setImageName(response.imageName)
 
@@ -49,12 +52,24 @@ function App() {
         setTopleftHeader(new Set(response.topleftHeader))
 
     } else { // 검수 안 한 경우 레이블 html 제공
+        setIsInspected(false)
+
         setHtml(response.html)
         setImageName(response.imageName)
 
         if (originImgRef.current) {
           originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
         }
+
+        setStruectCorrect(false)
+        setCharCorrect(false)
+        setThUsed(true)
+        setValueEmptyCell(false)
+        setSpecialChar(new Set([0]))
+        setCellSubtile(new Set([0]))
+        setSemanticMergedCell(new Set([0]))
+        setPartialLined(new Set([0]))
+        setTopleftHeader(new Set([0]))
     }
   }
 
@@ -71,9 +86,9 @@ function App() {
 
       <input type="number" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-white bg-black"
       value={labelId}
-      onChange={(event) => {
-          setLabelId(parseInt(event.target.value))
-        }}/>
+      onChange={(event) => setLabelId(parseInt(event.target.value))}
+      onKeyUp={(event: React.KeyboardEvent<HTMLInputElement>) => {if (event.key==='Enter') fillLabelInfo(labelId)}}
+        />
       
       <button onClick={() => fillLabelInfo(labelId)} className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
       </div>
@@ -87,7 +102,7 @@ function App() {
             setLabelId(labelId-1)
           }
         }} className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
-        <input type="text" placeholder='파일 이름' className="p-2 mx-2 border-2 rounded-md" value={imageName}  disabled />
+        <input type="text" placeholder='파일 이름' className={`p-2 mx-2 border-2 rounded-md ${isInspected ? 'text-green-400' : 'text-red-400'}`} value={imageName}  disabled />
         <button onClick={ async () => {
           if (labelId+1 < 1200){
             await fillLabelInfo(labelId+1)
@@ -146,8 +161,19 @@ function App() {
             onClick={() => {
               saveLabel(labelId, html, structCorrect, charCorrect,
                         thUsed, valueEmptyCell, specialChar, 
-                        cellSubtitle, semanticMergedCell, partialLined, topleftHeader
-                        )
+                        cellSubtitle, semanticMergedCell, partialLined, topleftHeader)
+
+              setStruectCorrect(false)
+              setCharCorrect(false)
+              setThUsed(true)
+              setValueEmptyCell(false)
+              setSpecialChar(new Set([0]))
+              setCellSubtile(new Set([0]))
+              setSemanticMergedCell(new Set([0]))
+              setPartialLined(new Set([0]))
+              setTopleftHeader(new Set([0]))
+
+              setIsInspected(true)
             }}
           >저장</button>
       </div>
