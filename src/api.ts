@@ -7,11 +7,11 @@ export const saveLabel = (
     charCorrect: boolean, 
     thUsed: boolean, 
     valueEmptyCell: boolean, 
-    supsub: number, 
-    cellSubtitle: number, 
-    semanticMergedCell: number, 
-    partialLined: number,
-    topleftHeader: number
+    specialChar: Set<number>, 
+    cellSubtitle: Set<number>, 
+    semanticMergedCell: Set<number>, 
+    partialLined: Set<number>,
+    topleftHeader: Set<number>
   ) => {
     
     const reqBody = {
@@ -21,29 +21,29 @@ export const saveLabel = (
         char_correct: charCorrect,
         th_used: thUsed,
         value_empty_cell: valueEmptyCell,
-        supsub: supsub,
-        cell_subtitle: cellSubtitle,
-        semantic_merged_cell: semanticMergedCell,
-        partial_lined: partialLined,
-        topleft_header: topleftHeader
+        special_char: Array.from(specialChar),
+        cell_subtitle: Array.from(cellSubtitle),
+        semantic_merged_cell: Array.from(semanticMergedCell),
+        partial_lined: Array.from(partialLined),
+        topleft_header: Array.from(topleftHeader)
       }
     console.log(reqBody)
 
     // 개발용 url
-    // axios.post('http://127.0.0.1:8000/save_label', reqBody);
+    axios.post('http://127.0.0.1:8000/save_label', reqBody);
 
     // 배포용 url
-    axios.post('/save_label', reqBody);
+    // axios.post('/save_label', reqBody);
   };
 
 export const getLabelInfo = async (labelId: number) => {
     try {
 
         // 개발용 url
-        // const res = await axios.get(`http://127.0.0.1:8000/label_info/${labelId}`);
+        const res = await axios.get(`http://127.0.0.1:8000/label_info/${labelId}`);
 
         // 배포용 url
-        const res = await axios.get(`/label_info/${labelId}`);
+        // const res = await axios.get(`/label_info/${labelId}`);
         return res.data
 
     } catch (error) {
