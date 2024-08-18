@@ -1,34 +1,10 @@
 import axios from 'axios'
 
-export const saveLabel = (
-    labelId: number, 
-    html: string, 
-    structCorrect: boolean, 
-    charCorrect: boolean, 
-    thUsed: boolean, 
-    valueEmptyCell: boolean, 
-    specialChar: Set<number>, 
-    cellSubtitle: Set<number>, 
-    semanticMergedCell: Set<number>, 
-    partialLined: Set<number>,
-    topleftHeader: Set<number>
-  ) => {
+export const saveLabel = (originId: number, html: string, savedImage: string) => {
     
-    const reqBody = {
-        label_id: labelId,
-        html: html,
-        struct_correct: structCorrect,
-        char_correct: charCorrect,
-        th_used: thUsed,
-        value_empty_cell: valueEmptyCell,
-        special_char: Array.from(specialChar),
-        cell_subtitle: Array.from(cellSubtitle),
-        semantic_merged_cell: Array.from(semanticMergedCell),
-        partial_lined: Array.from(partialLined),
-        topleft_header: Array.from(topleftHeader)
-      }
+    const reqBody = {originId: originId,html: html, savedImage: savedImage}
+    console.log(savedImage)
     console.log(reqBody)
-
     // 개발용 url
     axios.post('http://127.0.0.1:8000/save_label', reqBody);
 
@@ -51,8 +27,4 @@ export const getLabelInfo = async (labelId: number) => {
         throw error;
     }
    
-}
-
-export const getAggInfo = () => {
-
 }

@@ -4,7 +4,7 @@ import { getLabelInfo, saveLabel } from './api';
 import html2canvas from 'html2canvas';
 
 function App() {
-  const [labelId, setLabelId] = useState(0)
+  const [originId, setOriginId] = useState(0)
   const [imageName, setImageName] = useState('')
   const [previewb64, setPreviewb64] = useState('')
   const previewImageRef = useRef<HTMLImageElement>(null);
@@ -110,28 +110,28 @@ function App() {
       <div className='flex justify-center my-3'>
 
       <input type="number" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-white bg-black"
-      value={labelId}
-      onChange={(event) => setLabelId(parseInt(event.target.value))}
-      onKeyUp={(event: React.KeyboardEvent<HTMLInputElement>) => {if (event.key==='Enter') fillLabelInfo(labelId)}}
+      value={originId}
+      onChange={(event) => setOriginId(parseInt(event.target.value))}
+      onKeyUp={(event: React.KeyboardEvent<HTMLInputElement>) => {if (event.key==='Enter') fillLabelInfo(originId)}}
         />
       
-      <button onClick={() => fillLabelInfo(labelId)} className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
+      <button onClick={() => fillLabelInfo(originId)} className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
       </div>
 
       {/* 다음, 이전 라벨 보기 */}
       <div className="flex justify-center mb-5">
 
         <button onClick={async () => {
-          if (labelId-1 >= 0){
-            await fillLabelInfo(labelId-1)
-            setLabelId(labelId-1)
+          if (originId-1 >= 0){
+            await fillLabelInfo(originId-1)
+            setOriginId(originId-1)
           }
         }} className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
         <input type="text" placeholder='파일 이름' className={`p-2 mx-2 border-2 rounded-md ${isInspected ? 'text-green-400' : 'text-red-400'}`} value={imageName}  disabled />
         <button onClick={ async () => {
-          if (labelId+1 < 1200){
-            await fillLabelInfo(labelId+1)
-            setLabelId(labelId+1)
+          if (originId+1 < 1200){
+            await fillLabelInfo(originId+1)
+            setOriginId(originId+1)
           }
         }} className='p-2 border-2 rounded-md hover:bg-green-700'>다음</button>
  
@@ -153,7 +153,7 @@ function App() {
           value={html}
           onChange={handleEditorChange} />
     
-        <div className='grid grid-cols-2'>
+        <div className='my-3 grid grid-cols-2'>
           {/* div 조절 */}
           <div className="mx-5 grid grid-rows-6 gap-3">
             
@@ -249,7 +249,7 @@ function App() {
           p-${divPadding} font-${divFont} font-${divFontWeight} text-${divFontSize}`}
           dangerouslySetInnerHTML={{__html: html}} />
 
-          {/* 렌더링된 이미지 프리뷰 */}
+          {/* 저장될 이미지 프리뷰 */}
           <div className="rendered-table-preview">
             <img ref={previewImageRef} src="" alt="preview" />
           </div>
@@ -262,20 +262,10 @@ function App() {
         
         </div>
 
-      
-
       {/* 저장 버튼 */}
       <div className="m-5 flex justify-center">
           <button className="my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700"
-            onClick={async () => {
-              const renderedTableDOM = document.querySelector<HTMLElement>("#rendered-table")
-              if (renderedTableDOM) {
-                const canvas = await html2canvas(renderedTableDOM)
-                const imageFile = canvas.toDataURL("image/png", 1.5);
-                console.log(canvas)
-                console.log(imageFile)
-              }
-            }}
+            onClick={async () => saveLabel(originId, html.replace(/ ?(style|class)="(.*?)"/g, ''), previewb64)}
             >저장</button>
       </div>
     
