@@ -5,10 +5,12 @@ import html2canvas from 'html2canvas';
 
 function App() {
   const [originId, setOriginId] = useState(0)
-  const [imageName, setImageName] = useState('')
+  // const [imageName, setImageName] = useState('')
+  const [totalGeneratedNum, setTotalGeneratedNum] = useState(0)
+
   const [previewb64, setPreviewb64] = useState('')
   const previewImageRef = useRef<HTMLImageElement>(null);
-  const originImgRef = useRef<HTMLImageElement>(null);
+  // const originImgRef = useRef<HTMLImageElement>(null);
   
   const [html, setHtml] = useState('') // 사용자가 입력하는 html
 
@@ -60,10 +62,21 @@ function App() {
   const [tableBorder, setTableBorder] = useState(1)
 
   const applyStyleToHtml = (html: string) => {
-    return html.replace(/<table(.*?)>/g, `<table style="height: ${tableHeight}vh; width: ${tableWidth}vw; border: ${tableBorder}px solid black;">`)
-                           .replace(/<th(.*?)>/g, `<th style="border: ${tableBorder}px solid black; padding: ${tdPadding}em;">`)
-                           .replace(/<td(.*?)>/g, `<td style="border: ${tableBorder}px solid black; padding: ${tdPadding}em;">`)
-  }
+    return html
+        .replace(
+            /<table\s*(border="1" cellspacing="0")?[^>]*>/g,
+            `<table $1 style="height: ${tableHeight}vh; width: ${tableWidth}vw; border: ${tableBorder}px solid black;">`
+        )
+        .replace(
+            /<th\s*(rowspan="\d+")?\s*(colspan="\d+")?[^>]*>/g,
+            `<th $1 $2 style="border: ${tableBorder}px solid black; padding: ${tdPadding}em;">`
+        )
+        .replace(
+            /<td\s*(rowspan="\d+")?\s*(colspan="\d+")?[^>]*>/g,
+            `<td $1 $2 style="border: ${tableBorder}px solid black; padding: ${tdPadding}em;">`
+        );
+};
+
 
   useEffect(() => {
     setHtml(applyStyleToHtml(html))
@@ -72,38 +85,28 @@ function App() {
   const [isInspected, setIsInspected] = useState(false)
   
 
-  const fillLabelInfo = async (labelId: number) => {
-    const response = await getLabelInfo(labelId)
+  const fillLabelInfo = async (originId: number) => {
+    const response = await getLabelInfo(originId)
 
-    if (response.inspected) { // 검수한 경우 해당 레이블 정보 제공
-        setIsInspected(true)
+  
+      setIsInspected(response.isInspected)
 
-        setHtml(response.html)
-        setImageName(response.imageName)
+      setHtml(response.originHtml)
+      // setImageName(response.imageName)
 
-        if (originImgRef.current) {
-          originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
-        }
+      // if (originImgRef.current) {
+      //   originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
+      // }
 
-    } else { // 검수 안 한 경우 레이블 html 제공
-        setIsInspected(false)
+      setTotalGeneratedNum(response.totalGeneratedNum)
 
-        setHtml(response.html)
-        setImageName(response.imageName)
-
-        if (originImgRef.current) {
-          originImgRef.current.src = `data:image/png;base64,${response.originImage}`;
-        }
-
-    }
   }
-
   return (
     <>
       <div className="flex justify-between">
 
       <h1 className='m-5 text-3xl font-bold'>HTML Label Inspection</h1>
-      <h1 className="m-5 text-3xl font-bold">총 {}개 검수 완료</h1>
+      <h1 className="m-5 text-3xl font-bold">{totalGeneratedNum}개 이미지 생성</h1>
       </div>
 
       {/* label id로 html 라벨 찾기 */}
@@ -127,13 +130,13 @@ function App() {
             setOriginId(originId-1)
           }
         }} className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
-        <input type="text" placeholder='파일 이름' className={`p-2 mx-2 border-2 rounded-md ${isInspected ? 'text-green-400' : 'text-red-400'}`} value={imageName}  disabled />
+        <input type="text" placeholder='원본 레이블 이름' className={`p-2 mx-2 border-2 rounded-md ${isInspected ? 'text-green-400' : 'text-red-400'}`} value={`${originId}.json`} disabled />
         <button onClick={ async () => {
-          if (originId+1 < 1200){
+          if (originId+1 < 1200)
             await fillLabelInfo(originId+1)
             setOriginId(originId+1)
           }
-        }} className='p-2 border-2 rounded-md hover:bg-green-700'>다음</button>
+        } className='p-2 border-2 rounded-md hover:bg-green-700'>다음</button>
  
       </div>
 
@@ -265,7 +268,9 @@ function App() {
       {/* 저장 버튼 */}
       <div className="m-5 flex justify-center">
           <button className="my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700"
-            onClick={async () => saveLabel(originId, html.replace(/ ?(style|class)="(.*?)"/g, ''), previewb64)}
+            onClick={async () => {
+              saveLabel(originId, html.replace(/ *(style|class)="(.*?)"/g, ''), previewb64)
+            }}
             >저장</button>
       </div>
     
