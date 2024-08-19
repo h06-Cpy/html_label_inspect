@@ -38,7 +38,12 @@ function App() {
   const [divFontWeight, setDivFontWeight] = useState('')
 
   useEffect(() => {
-    showPreviewImage();
+    // 브라우저 성능을 위한 debouncing
+    const handler = setTimeout(showPreviewImage, 400);
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [divHeight, divWidth, divFont, divFontSize, divFontWeight, divPadding])
 
 
@@ -143,7 +148,7 @@ function App() {
       <hr className='border-gray-500'/>
 
       {/* 2 column */}
-      <div className='my-5 flex flex-row w-full h-full'>
+      <div className='my-5 flex flex-row w-full h-1/3'>
 
         {/* 왼쪽 */}
         <div className='w-1/2 mx-1 border-r-2'>
@@ -162,22 +167,22 @@ function App() {
             
             <div>
             <label htmlFor="div-height" className='mr-5'>div 높이</label>
-            <input name='div-height' type="text" className='p-2' value={divHeight} onChange={(event) => setDivHeight(event.target.value)}/>
+            <input name='div-height' type="text" className='p-2 bg-black text-white' value={divHeight} onChange={(event) => setDivHeight(event.target.value)}/>
             </div>
 
             <div>
             <label htmlFor="div-width" className='mr-5'>div 너비</label>
-            <input name='div-width' type="text" value={divWidth} className='p-2' onChange={(event) => setDivWidth(event.target.value)}/>
+            <input name='div-width' type="text" value={divWidth} className='p-2 bg-black text-white' onChange={(event) => setDivWidth(event.target.value)}/>
             </div>
 
             <div>
             <label htmlFor="div-padding" className='mr-5'>div 패딩</label>
-            <input name='div-padding' type="number" value={divPadding} className='p-2' onChange={(event) => setDivPadding(parseInt(event.target.value))}/>
+            <input name='div-padding' type="number" value={divPadding} className='p-2 bg-black text-white' onChange={(event) => setDivPadding(parseInt(event.target.value))}/>
             </div>
 
             <div>
             <label htmlFor="font-weight" className='mr-5'>폰트 굵기</label>
-            <select name="font-weight" id="font-weight" className='rounded-md p-2' onChange={(event) => setDivFontWeight(event.target.value)}>
+            <select name="font-weight" id="font-weight" className='rounded-md p-2 bg-black text-white' onChange={(event) => setDivFontWeight(event.target.value)}>
               <option value="thin">thin</option>
               <option value="extralight">extralight</option>
               <option value="light">light</option>
@@ -192,7 +197,7 @@ function App() {
 
             <div>
             <label htmlFor="fonts" className='mr-5'>폰트 종류</label>
-            <select name="fonts" id="fonts" className='rounded-md p-2' onChange={(event) => setDivFont(event.target.value)}>
+            <select name="fonts" id="fonts" className='rounded-md p-2 bg-black text-white' onChange={(event) => setDivFont(event.target.value)}>
               <option value="sans">sans</option>
               <option value="serif">serif</option>
               <option value="mono" selected>mono</option>
@@ -202,7 +207,7 @@ function App() {
 
             <div>
             <label htmlFor="font-size" className='mr-5'>폰트 크기</label>
-            <select name="font-size" id="font-size" className='rounded-md p-2' onChange={(event) => setDivFontSize(event.target.value)}>
+            <select name="font-size" id="font-size" className='rounded-md p-2 bg-black text-white' onChange={(event) => setDivFontSize(event.target.value)}>
               <option value="xs">xs</option>
               <option value="sm">sm</option>
               <option value="base" selected>base</option>
@@ -222,22 +227,22 @@ function App() {
             
             <div>
             <label htmlFor="table-height" className='mr-5'>table 높이</label>
-            <input name='table-height' type="number" className='p-2' value={tableHeight} onChange={(event) => setTableHeight(event.target.value)}/>
+            <input name='table-height' type="number" className='p-2 bg-black text-white' value={tableHeight} onChange={(event) => setTableHeight(event.target.value)}/>
             </div>
 
             <div>
             <label htmlFor="table-width" className='mr-5'>table 너비</label>
-            <input name='table-width' type="number" value={tableWidth} className='p-2' onChange={(event) => setTableWidth(event.target.value)}/>
+            <input name='table-width' type="number" value={tableWidth} className='p-2 bg-black text-white' onChange={(event) => setTableWidth(event.target.value)}/>
             </div>
 
             <div>
             <label htmlFor="td-padding" className='mr-5'>table border</label>
-            <input name='td-padding' type="number" value={tableBorder} className='p-2' step={0.5} min={0} onChange={(event) => setTableBorder(parseFloat(event.target.value))}/>
+            <input name='td-padding' type="number" value={tableBorder} className='p-2 bg-black text-white' step={0.5} min={0} onChange={(event) => setTableBorder(parseFloat(event.target.value))}/>
             </div>
 
             <div>
             <label htmlFor="td-padding" className='mr-5'>td 패딩</label>
-            <input name='td-padding' type="number" value={tdPadding} className='p-2' step={0.5} min={0} onChange={(event) => setTdPadding(parseFloat(event.target.value))}/>
+            <input name='td-padding' type="number" value={tdPadding} className='p-2 bg-black text-white' step={0.5} min={0} onChange={(event) => setTdPadding(parseFloat(event.target.value))}/>
             </div>
           </div>
         
@@ -248,7 +253,7 @@ function App() {
         {/* 오른쪽 */}
         <div className="w-1/2 mx-1 py-5 grid grid-rows-2 gap-2">
           {/* 렌더링된 html 테이블 */}
-          <div id='rendered-table' className={`w-${divHeight} h-${divWidth} bg-white text-black flex justify-center items-center 
+          <div id='rendered-table' className={`w-${divWidth} h-${divHeight} bg-white text-black flex justify-center items-center 
           p-${divPadding} font-${divFont} font-${divFontWeight} text-${divFontSize}`}
           dangerouslySetInnerHTML={{__html: html}} />
 
