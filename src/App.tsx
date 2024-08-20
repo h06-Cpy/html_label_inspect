@@ -271,12 +271,32 @@ function App() {
         </div>
 
       {/* 저장 버튼 */}
-      <div className="m-5 flex justify-center">
-          <button className="my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700"
+      <div className="m-5 flex justify-center items-center gap-3">
+      <button onClick={async () => {
+          if (originId-1 >= 0){
+            await fillLabelInfo(originId-1)
+            setOriginId(originId-1)
+          }
+        }} className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
+
+         <button className="my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700"
             onClick={async () => {
-              saveLabel(originId, html.replace(/ *(style|class)="(.*?)"/g, ''), previewb64)
+              const response = await saveLabel(originId, html.replace(/ *(style|class)="(.*?)"/g, ''), previewb64)
+              if(!response.success) {
+                                
+              }
+
             }}
             >저장</button>
+
+        <button onClick={ async () => {
+          if (originId+1 < 1200)
+            await fillLabelInfo(originId+1)
+            setOriginId(originId+1)
+          }
+        } className='p-2 border-2 rounded-md hover:bg-green-700'>다음</button>
+
+         
       </div>
     
     </>
