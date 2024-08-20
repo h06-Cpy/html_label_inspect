@@ -5,12 +5,11 @@ import html2canvas from 'html2canvas';
 
 function App() {
   const [originId, setOriginId] = useState(0)
-  // const [imageName, setImageName] = useState('')
+  const [saveSuccess, setSaveSuccess] = useState(false)
   const [totalGeneratedNum, setTotalGeneratedNum] = useState(0)
 
   const [previewb64, setPreviewb64] = useState('')
   const previewImageRef = useRef<HTMLImageElement>(null);
-  // const originImgRef = useRef<HTMLImageElement>(null);
   
   const [html, setHtml] = useState('') // 사용자가 입력하는 html
 
@@ -30,12 +29,10 @@ function App() {
     };
   }, [html])
 
-  const [divHeight, setDivHeight] = useState('fit')
-  const [divWidth, setDivWidth] = useState('fit')
-  const [divPadding, setDivPadding] = useState(2)
-  const [divFont, setDivFont] = useState('')
-  const [divFontSize, setDivFontSize] = useState('')
-  const [divFontWeight, setDivFontWeight] = useState('')
+  const [divHeight, setDivHeight] = useState('100')
+  const [divWidth, setDivWidth] = useState('50')
+  const [divPadding, setDivPadding] = useState(1)
+
 
   useEffect(() => {
     // 브라우저 성능을 위한 debouncing
@@ -44,7 +41,7 @@ function App() {
     return () => {
       clearTimeout(handler);
     };
-  }, [divHeight, divWidth, divFont, divFontSize, divFontWeight, divPadding])
+  }, [divHeight, divWidth, divPadding])
 
 
   const showPreviewImage = async () => {
@@ -66,11 +63,15 @@ function App() {
   const [tableWidth, setTableWidth] = useState('')
   const [tableBorder, setTableBorder] = useState(1)
 
+  const [tableFont, setTableFont] = useState('')
+  const [tableFontSize, setTableFontSize] = useState(1)
+  const [tableFontWeight, setTableFontWeight] = useState('normal')
+
   const applyStyleToHtml = (html: string) => {
     return html
         .replace(
             /<table\s*(border="1" cellspacing="0")?[^>]*>/g,
-            `<table $1 style="height: ${tableHeight}vh; width: ${tableWidth}vw; border: ${tableBorder}px solid black;">`
+            `<table $1 style="height: ${tableHeight}vh; width: ${tableWidth}vw; border: ${tableBorder}px solid black; font-family: ${tableFont}; font-size: ${tableFontSize}em; font-weight: ${tableFontWeight}">`
         )
         .replace(
             /<th\s*(rowspan="\d+")?\s*(colspan="\d+")?[^>]*>/g,
@@ -85,7 +86,7 @@ function App() {
 
   useEffect(() => {
     setHtml(applyStyleToHtml(html))
-  }, [tdPadding, tableHeight, tableWidth, tableBorder])
+  }, [tdPadding, tableHeight, tableWidth, tableBorder, tableFont, tableFontSize, tableFontWeight])
 
   const [isInspected, setIsInspected] = useState(false)
   
@@ -96,7 +97,7 @@ function App() {
   
       setIsInspected(response.isInspected)
 
-      setHtml(response.originHtml)
+      setHtml(applyStyleToHtml(response.originHtml))
       // setImageName(response.imageName)
 
       // if (originImgRef.current) {
@@ -106,6 +107,22 @@ function App() {
       setTotalGeneratedNum(response.totalGeneratedNum)
 
   }
+
+  const initializeStates = () => {
+    setSaveSuccess(false)
+    setDivHeight('100')
+    setDivWidth('50')
+    setDivPadding(1)
+    
+    setTableFontWeight('normal')
+    setTableFont('')
+    setTableFontSize(1)
+    setTableHeight('')
+    setTableWidth('')
+    setTableBorder(1)
+    setTdPadding(0.5)
+  }
+
   return (
     <>
       <div className="flex justify-between">
@@ -114,28 +131,27 @@ function App() {
       <h1 className="m-5 text-3xl font-bold">{totalGeneratedNum}개 이미지 생성</h1>
       </div>
 
-      {/* label id로 html 라벨 찾기 */}
-      <div className='flex justify-center my-3'>
 
-      <input type="number" name='label-id' placeholder='label id 입력' className="mx-5 mb-5 p-2 border-2 rounded-md text-white bg-black"
-      value={originId}
-      onChange={(event) => setOriginId(parseInt(event.target.value))}
-      onKeyUp={(event: React.KeyboardEvent<HTMLInputElement>) => {if (event.key==='Enter') fillLabelInfo(originId)}}
-        />
-      
-      <button onClick={() => fillLabelInfo(originId)} className='p-2 border-2 h-11 rounded-md hover:bg-green-700'>찾기</button>
-      </div>
-
-      {/* 다음, 이전 라벨 보기 */}
-      <div className="flex justify-center mb-5">
+      {/* html label 찾기 */}
+      <div className="flex justify-center items-center mb-5">
 
         <button onClick={async () => {
           if (originId-1 >= 0){
             await fillLabelInfo(originId-1)
             setOriginId(originId-1)
+            initializeStates()
           }
         }} className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
-        <input type="text" placeholder='원본 레이블 이름' className={`p-2 mx-2 border-2 rounded-md ${isInspected ? 'text-green-400' : 'text-red-400'}`} value={`${originId}.json`} disabled />
+
+        <input type="number" name='label-id' placeholder='label id 입력' className={`mx-5 p-2 border-2 rounded-md text-white bg-black ${isInspected ? 'border-green-400' : 'border-red-400'}`}
+              value={originId}
+              onChange={(event) => setOriginId(parseInt(event.target.value))}
+              onKeyUp={(event: React.KeyboardEvent<HTMLInputElement>) => {if (event.key==='Enter') {
+                initializeStates()
+                fillLabelInfo(originId)
+              }}}
+                />
+
         <button onClick={ async () => {
           if (originId+1 < 1200)
             await fillLabelInfo(originId+1)
@@ -167,58 +183,41 @@ function App() {
             
             <div>
             <label htmlFor="div-height" className='mr-5'>div 높이</label>
-            <input name='div-height' type="text" className='p-2 bg-black text-white' value={divHeight} onChange={(event) => setDivHeight(event.target.value)}/>
+            <input name='div-height' type="number" className='p-2 bg-black text-white' value={divHeight} onChange={(event) => setDivHeight(event.target.value)}/>
             </div>
 
             <div>
             <label htmlFor="div-width" className='mr-5'>div 너비</label>
-            <input name='div-width' type="text" value={divWidth} className='p-2 bg-black text-white' onChange={(event) => setDivWidth(event.target.value)}/>
+            <input name='div-width' type="number" value={divWidth} className='p-2 bg-black text-white' onChange={(event) => setDivWidth(event.target.value)}/>
             </div>
 
             <div>
             <label htmlFor="div-padding" className='mr-5'>div 패딩</label>
-            <input name='div-padding' type="number" value={divPadding} className='p-2 bg-black text-white' onChange={(event) => setDivPadding(parseInt(event.target.value))}/>
+            <input name='div-padding' type="number" value={divPadding} step={0.5} className='p-2 bg-black text-white' onChange={(event) => setDivPadding(parseFloat(event.target.value))}/>
             </div>
 
             <div>
             <label htmlFor="font-weight" className='mr-5'>폰트 굵기</label>
-            <select name="font-weight" id="font-weight" className='rounded-md p-2 bg-black text-white' onChange={(event) => setDivFontWeight(event.target.value)}>
-              <option value="thin">thin</option>
-              <option value="extralight">extralight</option>
-              <option value="light">light</option>
+            <select name="font-weight" id="font-weight" className='rounded-md p-2 bg-black text-white' onChange={(event) => setTableFontWeight(event.target.value)}>
               <option value="normal" selected>normal</option>
-              <option value="medium">medium</option>
-              <option value="semibold">semibold</option>
               <option value="bold">bold</option>
-              <option value="extrabold">extrabold</option>
-              <option value="black">black</option>
             </select>
             </div>
 
             <div>
             <label htmlFor="fonts" className='mr-5'>폰트 종류</label>
-            <select name="fonts" id="fonts" className='rounded-md p-2 bg-black text-white' onChange={(event) => setDivFont(event.target.value)}>
-              <option value="sans">sans</option>
+            <select name="fonts" id="fonts" className='rounded-md p-2 bg-black text-white' onChange={(event) => setTableFont(event.target.value)}>
+              <option value="" selected>기본</option>
               <option value="serif">serif</option>
-              <option value="mono" selected>mono</option>
-    
+              <option value="monospace">mono</option>
+              <option value="cursive">cursive</option>
+              <option value="fantasy">fantasy</option>
             </select>
             </div>
 
             <div>
             <label htmlFor="font-size" className='mr-5'>폰트 크기</label>
-            <select name="font-size" id="font-size" className='rounded-md p-2 bg-black text-white' onChange={(event) => setDivFontSize(event.target.value)}>
-              <option value="xs">xs</option>
-              <option value="sm">sm</option>
-              <option value="base" selected>base</option>
-              <option value="lg">lg</option>
-              <option value="xl">xl</option>
-              <option value="2xl">2xl</option>
-              <option value="3xl">3xl</option>
-              <option value="4xl">4xl</option>
-              <option value="5xl">5xl</option>
-              <option value="6xl">6xl</option>
-            </select>
+            <input name='font-size' type="number" className='p-2 bg-black text-white' step={0.5} value={tableFontSize} onChange={(event) => setTableFontSize(parseFloat(event.target.value))}/>
             </div>
           </div>
 
@@ -253,8 +252,9 @@ function App() {
         {/* 오른쪽 */}
         <div className="w-1/2 mx-1 py-5 grid grid-rows-2 gap-2">
           {/* 렌더링된 html 테이블 */}
-          <div id='rendered-table' className={`w-${divWidth} h-${divHeight} bg-white text-black flex justify-center items-center 
-          p-${divPadding} font-${divFont} font-${divFontWeight} text-${divFontSize}`}
+          <div id='rendered-table' 
+          style={{height: `${divHeight}vh`, width: `${divWidth}vw`, padding: `${divPadding}em`}}
+          className={`w-${divWidth} h-${divHeight} bg-white text-black flex justify-center items-center p-${divPadding}`}
           dangerouslySetInnerHTML={{__html: html}} />
 
           {/* 저장될 이미지 프리뷰 */}
@@ -274,16 +274,17 @@ function App() {
       <div className="m-5 flex justify-center items-center gap-3">
       <button onClick={async () => {
           if (originId-1 >= 0){
+            initializeStates()
             await fillLabelInfo(originId-1)
             setOriginId(originId-1)
           }
         }} className='p-2 border-2 rounded-md hover:bg-green-700'>이전</button>
 
-         <button className="my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700"
+         <button className={`my-3 p-2 border-2 w-1/3 rounded-md text-2xl hover:bg-green-700 ${saveSuccess ? 'border-green-600': ''}"`}
             onClick={async () => {
               const response = await saveLabel(originId, html.replace(/ *(style|class)="(.*?)"/g, ''), previewb64)
               if(!response.success) {
-                                
+                 setSaveSuccess(true)             
               }
 
             }}
@@ -291,6 +292,7 @@ function App() {
 
         <button onClick={ async () => {
           if (originId+1 < 1200)
+            initializeStates()
             await fillLabelInfo(originId+1)
             setOriginId(originId+1)
           }
